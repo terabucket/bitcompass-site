@@ -4,6 +4,7 @@ import "@/resources/custom.css";
 
 import type { Metadata, Viewport } from "next";
 import classNames from "classnames";
+import { Analytics } from "@vercel/analytics/next"
 
 import { Background, Column, Flex, type opacity, RevealFx, type SpacingToken } from "@once-ui-system/core";
 import { Footer, Header, JsonLd, Providers } from "@/components";
@@ -209,6 +210,7 @@ export default function RootLayout({
           <Footer />
         </Column>
       </Providers>
+      <Analytics />
     </Flex>
   );
 }
