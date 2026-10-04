@@ -35,7 +35,7 @@
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.25.0",
-    "typescript": "^5.8.3",
+    "typescript": "^7.0.2",
     "tzdata": "^1.0.44"
   },
   "engines": {
