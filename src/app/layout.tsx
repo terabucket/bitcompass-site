@@ -5,7 +5,7 @@ import "@/resources/custom.css";
 import type { Metadata, Viewport } from "next";
 import classNames from "classnames";
 
-import { Background, Column, Flex, opacity, RevealFx, SpacingToken } from "@once-ui-system/core";
+import { Background, Column, Flex, type opacity, RevealFx, type SpacingToken } from "@once-ui-system/core";
 import { Footer, Header, JsonLd, Providers } from "@/components";
 import { baseURL, company, dataStyle, effects, fonts, home, site, style } from "@/resources";
 import { ogImageUrl, organizationSchema, websiteSchema } from "@/utils/seo";
@@ -98,6 +98,7 @@ export default function RootLayout({
       <head>
         <script
           id="theme-init"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: static theme script must run before paint to avoid a light/dark flash
           dangerouslySetInnerHTML={{
             __html: `
               (function() {

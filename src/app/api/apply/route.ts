@@ -29,8 +29,15 @@ function isRateLimited(ip: string) {
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
-const escapeHtml = (value: string) =>
-  value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+const htmlEntities: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
+const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (c) => htmlEntities[c] ?? c);
 
 const oneLine = (value: string) => value.replace(/[\r\n]+/g, " ").trim();
 

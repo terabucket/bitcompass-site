@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "fs/promises";
-import path from "path";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { company, site } from "@/resources";
 
 export const runtime = "nodejs";

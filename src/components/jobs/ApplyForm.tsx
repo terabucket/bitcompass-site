@@ -86,7 +86,7 @@ export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: st
 
     const body = new FormData();
     body.append("job", jobSlug);
-    Object.entries(fields).forEach(([key, value]) => body.append(key, value.trim()));
+    for (const [key, value] of Object.entries(fields)) body.append(key, value.trim());
     body.append("resume", resume as File);
     body.append("consent", "yes");
     body.append("website", honeypot.current?.value ?? "");
@@ -131,6 +131,7 @@ export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: st
         background="success-alpha-weak"
         horizontal="center"
         align="center"
+        // biome-ignore lint/a11y/useSemanticElements: a live-region container is the right fit for this success card
         role="status"
         aria-live="polite"
       >

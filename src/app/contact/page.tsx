@@ -40,7 +40,7 @@ export default function ContactPage() {
           <Grid columns="2" s={{ columns: 1 }} gap="12" fillWidth>
             {channels.map((channel) => {
               const content = (
-                <Row gap="12" vertical="start">
+                <Row key={channel.label} gap="12" vertical="start">
                   <Row padding="8" radius="m" background="brand-alpha-weak">
                     <Icon name={channel.icon} size="s" onBackground="brand-weak" />
                   </Row>

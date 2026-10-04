@@ -20,6 +20,16 @@ cp .env.example .env.local   # then fill in your values
 npm run dev                  # http://localhost:3000
 ```
 
+Quality checks (the same ones CI runs):
+
+```bash
+npm run lint && npm run typecheck && npm run build
+```
+
+## Deployment & CI/CD
+
+Production runs on **Vercel** with the domain's DNS at GoDaddy. Pull requests get preview deployments, and merges to `main` deploy to production. GitHub Actions runs lint, typecheck and build on every PR. See **[DEPLOYMENT.md](DEPLOYMENT.md)** for the step-by-step setup.
+
 ## Environment variables
 
 All variables are documented in [`.env.example`](.env.example).

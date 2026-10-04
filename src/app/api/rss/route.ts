@@ -2,8 +2,15 @@ import { NextResponse } from "next/server";
 import { getPosts } from "@/utils/utils";
 import { absoluteUrl, blog, site } from "@/resources";
 
-const escapeXml = (value: string) =>
-  value.replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c]!);
+const xmlEntities: Record<string, string> = {
+  "<": "&lt;",
+  ">": "&gt;",
+  "&": "&amp;",
+  "'": "&apos;",
+  '"': "&quot;",
+};
+
+const escapeXml = (value: string) => value.replace(/[<>&'"]/g, (c) => xmlEntities[c] ?? c);
 
 export async function GET() {
   const posts = getPosts().sort(
