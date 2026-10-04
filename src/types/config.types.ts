@@ -1,0 +1,140 @@
+import {
+  BorderStyle,
+  ChartMode,
+  ChartVariant,
+  NeutralColor,
+  ScalingSize,
+  Schemes,
+  SolidStyle,
+  SolidType,
+  SurfaceStyle,
+  Theme,
+  TransitionStyle,
+} from "@once-ui-system/core";
+import { NextFontWithVariable } from "next/dist/compiled/@next/font";
+
+/**
+ * Display configuration for UI elements.
+ */
+export type DisplayConfig = {
+  themeSwitcher: boolean;
+};
+
+/**
+ * Font configuration for each variant.
+ */
+export type FontsConfig = {
+  heading: NextFontWithVariable;
+  body: NextFontWithVariable;
+  label: NextFontWithVariable;
+  code: NextFontWithVariable;
+};
+
+/**
+ * Style customization for main layout.
+ */
+export type StyleConfig = {
+  theme: Theme;
+  neutral: NeutralColor;
+  /** "custom" uses the --scheme-brand-* palette defined in resources/custom.css */
+  brand: Schemes | "custom";
+  accent: Schemes;
+  solid: SolidType;
+  solidStyle: SolidStyle;
+  border: BorderStyle;
+  surface: SurfaceStyle;
+  transition: TransitionStyle;
+  scaling: ScalingSize;
+};
+
+/**
+ * Data style configuration for charts.
+ */
+export type DataStyleConfig = {
+  variant: ChartVariant;
+  mode: ChartMode;
+  height: number;
+  axis: {
+    stroke: string;
+  };
+  tick: {
+    fill: string;
+    fontSize: number;
+    line: boolean;
+  };
+};
+
+/**
+ * Effects configuration for UI visuals.
+ */
+export type EffectsConfig = {
+  mask: {
+    cursor: boolean;
+    x: number;
+    y: number;
+    radius: number;
+  };
+  gradient: {
+    display: boolean;
+    opacity: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    tilt: number;
+    colorStart: string;
+    colorEnd: string;
+  };
+  dots: {
+    display: boolean;
+    opacity: number;
+    size: string;
+    color: string;
+  };
+  grid: {
+    display: boolean;
+    opacity: number;
+    color: string;
+    width: string;
+    height: string;
+  };
+  lines: {
+    display: boolean;
+    opacity: number;
+    color: string;
+    size: string;
+    thickness: number;
+    angle: number;
+  };
+};
+
+/**
+ * Social sharing configuration for blog posts.
+ */
+export type SocialSharingConfig = {
+  display: boolean;
+  platforms: {
+    x: boolean;
+    linkedin: boolean;
+    facebook: boolean;
+    pinterest: boolean;
+    whatsapp: boolean;
+    reddit: boolean;
+    telegram: boolean;
+    email: boolean;
+    copyLink: boolean;
+  };
+};
+
+/**
+ * Top-level config types for once-ui.config.ts
+ */
+export type OnceUIConfig = {
+  display: DisplayConfig;
+  baseURL: string;
+  fonts: FontsConfig;
+  style: StyleConfig;
+  socialSharing: SocialSharingConfig;
+  effects: EffectsConfig;
+  dataStyle: DataStyleConfig;
+};

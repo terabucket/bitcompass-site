@@ -1,0 +1,101 @@
+/* ------------------------------------------------------------------ */
+/* BitCompass brand palette — built around the logo color #5371FF      */
+/* Used because style.brand = "custom" in once-ui.config.ts            */
+/* ------------------------------------------------------------------ */
+:root {
+  --scheme-brand-100: #050817;
+  --scheme-brand-200: #0b1240;
+  --scheme-brand-300: #13247f;
+  --scheme-brand-400: #2440d9;
+  --scheme-brand-500: #3d5af5;
+  --scheme-brand-600: #5371ff;
+  --scheme-brand-700: #7b92ff;
+  --scheme-brand-800: #a9b8ff;
+  --scheme-brand-900: #c9d3ff;
+  --scheme-brand-1000: #e2e7ff;
+  --scheme-brand-1100: #eef1ff;
+  --scheme-brand-1200: #f7f8ff;
+  --scheme-brand-600-15: rgba(83, 113, 255, 0.15);
+  --scheme-brand-600-30: rgba(83, 113, 255, 0.3);
+  --scheme-brand-600-50: rgba(83, 113, 255, 0.5);
+
+  /* Suez One ships a single weight: keep headings at 400 instead of faux-bold */
+  --font-weight-display-strong: 400;
+  --font-weight-display-default: 400;
+  --font-weight-heading-strong: 400;
+  --font-weight-heading-default: 400;
+}
+
+/* Primary buttons use the exact logo color (#5371FF) at rest in both themes,
+   and a slightly deeper blue on hover */
+[data-theme="light"][data-solid="color"],
+[data-theme="light"] [data-solid="color"],
+[data-theme="dark"][data-solid="color"],
+[data-theme="dark"] [data-solid="color"] {
+  --brand-solid-strong: var(--scheme-brand-500);
+  --brand-solid-medium: var(--scheme-brand-600);
+  --brand-solid-weak: var(--scheme-brand-400);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+.font-heading,
+.font-display {
+  letter-spacing: -0.005em;
+}
+
+/* Brand text color helper */
+.text-brand {
+  color: var(--brand-on-background-weak);
+}
+
+/* ------------------------------------------------------------------ */
+/* Logo light/dark swap (driven by data-theme on <html>)               */
+/* ------------------------------------------------------------------ */
+.logo-on-dark {
+  display: none !important;
+}
+
+[data-theme="dark"] .logo-on-light {
+  display: none !important;
+}
+
+[data-theme="dark"] .logo-on-dark {
+  display: block !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Accessibility                                                       */
+/* ------------------------------------------------------------------ */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--brand-solid-medium);
+  color: var(--brand-on-solid-strong);
+  font-family: var(--font-label);
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

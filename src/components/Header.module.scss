@@ -1,0 +1,38 @@
+@use "./breakpoints.scss" as breakpoints;
+
+.header {
+  backdrop-filter: blur(1rem);
+  -webkit-backdrop-filter: blur(1rem);
+  background: color-mix(in srgb, var(--page-background) 72%, transparent);
+  border-bottom: 1px solid var(--neutral-alpha-weak);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logoMark {
+  display: none !important;
+}
+
+.cta {
+  min-width: 10rem;
+}
+
+@media (max-width: breakpoints.$m) {
+  .cta {
+    min-width: 0;
+  }
+}
+
+@media (max-width: breakpoints.$s) {
+  .logoFull {
+    display: none !important;
+  }
+
+  .logoMark {
+    display: inline-flex !important;
+  }
+}

@@ -1,0 +1,57 @@
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  border-radius: var(--radius-l);
+  border: 1.5px dashed var(--brand-alpha-strong);
+  background: var(--brand-alpha-weak);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+
+  &:hover,
+  &[data-dragging] {
+    border-color: var(--brand-solid-strong);
+    background: var(--brand-alpha-medium);
+  }
+
+  &:focus-within {
+    outline: 2px solid var(--brand-solid-strong);
+    outline-offset: 2px;
+  }
+
+  &[data-error] {
+    border-color: var(--danger-border-strong);
+    background: var(--danger-alpha-weak);
+  }
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+
+  input {
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-top: 0.125rem;
+    accent-color: var(--brand-solid-medium);
+    cursor: pointer;
+  }
+}
