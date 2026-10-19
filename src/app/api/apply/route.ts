@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { jobs, site } from "@/resources";
 import {
   type ApplicationFields,
   validateFields,
   validateResume,
 } from "@/lib/application";
+import { createSmtpTransport, describeSmtpError, readSmtpSettings } from "@/lib/smtp";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Room for a slow SMTP handshake plus the optional confirmation email
+export const maxDuration = 30;
 
 /* ------------------------------------------------------------------ */
 /* Basic in-memory rate limit (per server instance)                    */
@@ -57,20 +59,12 @@ const contentTypes: Record<string, string> = {
   docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 };
 
-function getTransport() {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE } = process.env;
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return null;
-  const port = Number(SMTP_PORT || 587);
-  return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port,
-    secure: SMTP_SECURE ? SMTP_SECURE === "true" : port === 465,
-    auth: { user: SMTP_USER, pass: SMTP_PASS },
-  });
-}
-
-const fail = (status: number, error: string, fieldErrors?: Record<string, string>) =>
-  NextResponse.json({ ok: false, error, fieldErrors }, { status });
+const fail = (
+  status: number,
+  error: string,
+  fieldErrors?: Record<string, string>,
+  code?: string,
+) => NextResponse.json({ ok: false, error, fieldErrors, code }, { status });
 
 /* ------------------------------------------------------------------ */
 /* POST /api/apply                                                     */
@@ -130,22 +124,27 @@ export async function POST(request: Request) {
     });
   }
 
-  const transport = getTransport();
+  const smtp = readSmtpSettings();
   const recipients = (process.env.APPLICATIONS_TO_EMAIL || site.contact.email)
     .split(",")
     .map((r) => r.trim())
     .filter(Boolean);
-  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
 
-  if (!transport || recipients.length === 0 || !from) {
+  if (!smtp || recipients.length === 0) {
     console.error("[apply] Email is not configured. Set SMTP_* and APPLICATIONS_TO_EMAIL in your env file.");
     return fail(
       503,
       site.contact.email
         ? `We couldn't submit your application right now. Please email your resume to ${site.contact.email}.`
         : "We couldn't submit your application right now. Please try again later.",
+      undefined,
+      "SMTP_NOT_CONFIGURED",
     );
   }
+
+  for (const warning of smtp.warnings) console.warn(`[apply] SMTP config: ${warning}`);
+  const transport = createSmtpTransport(smtp);
+  const from = smtp.from;
 
   const ext = resumeFile.name.toLowerCase().split(".").pop() as "pdf" | "doc" | "docx";
   const safeName = fields.fullName.replace(/[^\p{L}\p{N} ._-]/gu, "").trim().replace(/\s+/g, "-") || "candidate";
@@ -215,8 +214,18 @@ export async function POST(request: Request) {
       ],
     });
   } catch (error) {
-    console.error("[apply] Failed to send application email:", error);
-    return fail(502, "We couldn't send your application. Please try again in a moment.");
+    const failure = describeSmtpError(error);
+    console.error(
+      `[apply] Failed to send application email: ${failure.code}\n  Fix: ${failure.hint}\n  Server said: ${failure.detail}`,
+    );
+    return fail(
+      502,
+      site.contact.email
+        ? `We couldn't send your application. Please try again later, or email your resume to ${site.contact.email}.`
+        : "We couldn't send your application. Please try again in a moment.",
+      undefined,
+      failure.code,
+    );
   }
 
   // Optional confirmation email to the candidate
@@ -231,7 +240,10 @@ export async function POST(request: Request) {
         text: `Hi ${fields.fullName.split(" ")[0]},\n\nThanks for applying for the ${job.title} role at ${site.name}. Our team reviews every application, and if your profile matches we'll contact you within a few business days.\n\n— The ${site.name} team\n${site.url}`,
         html: `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:560px"><p>Hi ${firstName},</p><p>Thanks for applying for the <strong>${escapeHtml(job.title)}</strong> role at ${site.name}. Our team reviews every application, and if your profile matches we'll contact you within a few business days.</p><p>— The ${site.name} team<br/><a href="${site.url}" style="color:${site.brandColor}">${site.url.replace(/^https?:\/\//, "")}</a></p></div>`,
       })
-      .catch((error) => console.error("[apply] Failed to send confirmation email:", error));
+      .catch((error) => {
+        const failure = describeSmtpError(error);
+        console.error(`[apply] Failed to send confirmation email: ${failure.code} | ${failure.detail}`);
+      });
   }
 
   return NextResponse.json({ ok: true });

@@ -7,7 +7,8 @@
     "biome-write": "npx @biomejs/biome format --write .",
     "start": "next start",
     "lint": "biome lint ./src",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "smtp:test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning scripts/smtp-test.mts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.0",

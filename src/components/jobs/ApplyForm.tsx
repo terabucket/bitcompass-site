@@ -160,12 +160,14 @@ export function ApplyForm({ jobSlug, jobTitle, options = {} }: ApplyFormProps) {
         ok?: boolean;
         error?: string;
         fieldErrors?: FieldErrors;
+        code?: string;
       };
 
       if (!response.ok || !data.ok) {
         setErrors(data.fieldErrors ?? {});
         setStatus("error");
-        setMessage(data.error || "Something went wrong. Please try again.");
+        const reason = data.error || "Something went wrong. Please try again.";
+        setMessage(data.code ? `${reason} (Ref: ${data.code})` : reason);
         return;
       }
 

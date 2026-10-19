@@ -140,6 +140,10 @@ Then open a pull request on GitHub, review the Vercel Preview link, wait for the
 | Vercel says "Invalid Configuration" for hours | Re-check the A/CNAME values against Vercel's screen; make sure no extra `A`/`AAAA` records for `@` and no GoDaddy Forwarding remain. Test with [dnschecker.org](https://dnschecker.org). |
 | Site shows the GoDaddy parked page | The old parked `A` record is still there, or DNS hasn't propagated yet. |
 | Links in sitemap / social previews show `localhost` or `vercel.app` | `NEXT_PUBLIC_SITE_URL` is wrong. Fix it and **redeploy**. |
-| Form says "couldn't submit your application right now" | SMTP variables are missing or wrong. Check Vercel Logs for `[apply]`. |
+| Form says "couldn't submit your application right now" (`Ref: SMTP_NOT_CONFIGURED`) | `SMTP_HOST`, `SMTP_USER` or `SMTP_PASS` is missing in Vercel. Add them and redeploy. |
+| Form says "couldn't send your application" with a `Ref:` code | The code tells you what failed; Vercel → **Logs** (search `[apply]`) shows the fix and the server's exact reply. Test the same settings locally with `npm run smtp:test -- you@example.com`. |
+| `Ref: SMTP_AUTH_DISABLED` | The email provider refuses password sign-in for SMTP. In Microsoft 365: admin center → Users → the mailbox → Mail → **Manage email apps** → enable **Authenticated SMTP** (the tenant must allow SMTP AUTH too). Or switch to a transactional service such as Resend. |
+| `Ref: SMTP_AUTH_FAILED` | Wrong `SMTP_USER`/`SMTP_PASS`. With MFA, use an app password. |
+| `Ref: SMTP_SENDER_REJECTED` | Set `MAIL_FROM` to the same address as `SMTP_USER`. |
 | Application emails go to spam | Add SPF/DKIM/DMARC records from your email provider, and make sure `MAIL_FROM` uses that verified domain. |
 | CI fails on GitHub | Open the failed run under the **Actions** tab. Locally, run `npm run lint && npm run typecheck && npm run build`. |
