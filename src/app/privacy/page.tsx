@@ -7,7 +7,7 @@ export const metadata = buildMetadata(privacy);
 
 // NOTE: This is a starting template, not legal advice. Have it reviewed for the
 // jurisdictions you operate in (e.g. GDPR for EU candidates, LGPD for Brazil).
-const lastUpdated = "October 3, 2026";
+const lastUpdated = "October 19, 2026";
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -42,8 +42,9 @@ export default function PrivacyPage() {
 
       <P>
         {site.name} (&quot;we&quot;, &quot;us&quot;) helps IT professionals outside the United States
-        find remote jobs with US companies. This policy explains what personal information we collect
-        through this website and how we use it.
+        find remote jobs with US companies, and connects US-based experts with AI training projects.
+        This policy explains what personal information we collect through this website and how we
+        use it.
       </P>
 
       <Block title="Information we collect">
@@ -57,7 +58,8 @@ export default function PrivacyPage() {
       <Block title="How we use it">
         <List as="ul">
           <ListItem>To review your application and contact you about suitable roles.</ListItem>
-          <ListItem>To share your profile with prospective US employers — only for roles relevant to you.</ListItem>
+          <ListItem>To share your profile with prospective US employers and AI training project partners — only for opportunities relevant to you.</ListItem>
+          <ListItem>For AI training applicants: to confirm your field of expertise and the US citizenship you declare, as required by our clients.</ListItem>
           <ListItem>To keep our website secure and prevent abuse.</ListItem>
         </List>
         <P>We never sell your personal information.</P>

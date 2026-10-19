@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const pages: MetadataRoute.Sitemap = [
     { url: absoluteUrl("/"), lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: absoluteUrl("/jobs"), lastModified: now, changeFrequency: "daily", priority: 0.9 },
+    { url: absoluteUrl("/ai-training"), lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: absoluteUrl("/about"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: absoluteUrl("/blog"), lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: absoluteUrl("/contact"), lastModified: now, changeFrequency: "yearly", priority: 0.6 },

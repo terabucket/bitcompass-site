@@ -16,7 +16,7 @@ import {
 import { CtaBanner, FaqList, JsonLd, SectionHeading } from "@/components";
 import { JobCard } from "@/components/jobs/JobCard";
 import { Posts } from "@/components/blog/Posts";
-import { company, faqs, features, home, jobs, roles, steps } from "@/resources";
+import { aiFaqs, company, faqs, features, home, jobs, roles, steps, tracks } from "@/resources";
 import { buildMetadata, faqSchema, webPageSchema } from "@/utils/seo";
 import styles from "@/components/home/Home.module.scss";
 
@@ -30,17 +30,16 @@ export const metadata = buildMetadata({
 
 export default function Home() {
   const openJobs = jobs.filter((job) => job.open);
-  const featuredJob = openJobs[0];
+  const featuredJob = openJobs.find((job) => job.track === "global");
 
   return (
     <Column maxWidth="l" fillWidth gap="104" s={{ gap: "80" }}>
-      <JsonLd data={[webPageSchema(home), faqSchema(faqs)]} />
+      <JsonLd data={[webPageSchema(home), faqSchema([...faqs, ...aiFaqs])]} />
 
       {/* Hero */}
       <Row as="section" aria-labelledby="hero-title" fillWidth gap="48" vertical="center" m={{ direction: "column" }} paddingTop="24">
         <Column flex={6} gap="24" m={{ horizontal: "center", align: "center" }}>
-          {featuredJob && (
-            <RevealFx translateY="4" fitWidth>
+          <RevealFx translateY="4" fitWidth>
               <Badge
                 background="brand-alpha-weak"
                 border="brand-alpha-medium"
@@ -48,13 +47,12 @@ export default function Home() {
                 paddingY="4"
                 onBackground="brand-strong"
                 textVariant="label-default-s"
-                href={`/jobs/${featuredJob.slug}`}
+                href="/ai-training"
                 arrow
               >
                 {home.badge}
               </Badge>
             </RevealFx>
-          )}
           <RevealFx translateY="8" delay={0.1}>
             <Heading as="h1" id="hero-title" variant="display-strong-l" wrap="balance">
               {home.headline}
@@ -67,13 +65,11 @@ export default function Home() {
           </RevealFx>
           <RevealFx translateY="8" delay={0.3}>
             <Row gap="12" wrap m={{ horizontal: "center" }}>
-              {featuredJob && (
-                <Button href={`/jobs/${featuredJob.slug}#apply`} size="l" arrowIcon data-border="rounded">
-                  Apply now
-                </Button>
-              )}
-              <Button href="#how-it-works" size="l" variant="secondary" data-border="rounded">
-                How it works
+              <Button href="/jobs" size="l" arrowIcon data-border="rounded">
+                Explore open roles
+              </Button>
+              <Button href="#paths" size="l" variant="secondary" data-border="rounded">
+                Find your path
               </Button>
             </Row>
           </RevealFx>
@@ -130,13 +126,76 @@ export default function Home() {
         </Column>
       </Row>
 
+      {/* Two business lines */}
+      <Column as="section" id="paths" aria-labelledby="paths-title" fillWidth gap="40" horizontal="center">
+        <SectionHeading
+          id="paths-title"
+          eyebrow="Two ways to work with BitCompass"
+          title="Choose your path"
+          description="Whether you're a developer anywhere in the world or a US-based expert in your field, there's remote work waiting for you."
+        />
+        <Grid columns="2" s={{ columns: 1 }} gap="16" fillWidth>
+          {tracks.map((track) => (
+            <Column
+              key={track.id}
+              as="article"
+              fillWidth
+              radius="xl"
+              border="neutral-alpha-medium"
+              background="surface"
+              overflow="hidden"
+            >
+              <Media
+                src={track.image}
+                alt={track.imageAlt}
+                aspectRatio="16 / 9"
+                sizes="(max-width: 768px) 100vw, 640px"
+              />
+              <Column gap="16" padding="32" s={{ padding: "24" }} fillHeight>
+                <Text
+                  variant="label-strong-s"
+                  onBackground="brand-weak"
+                  style={{ textTransform: "uppercase", letterSpacing: "0.08em" }}
+                >
+                  {track.eyebrow}
+                </Text>
+                <Heading as="h3" variant="heading-strong-xl">
+                  {track.title}
+                </Heading>
+                <Text variant="body-default-m" onBackground="neutral-weak">
+                  {track.description}
+                </Text>
+                <Column as="ul" gap="8" margin="0" padding="0" style={{ listStyle: "none" }}>
+                  {track.points.map((point) => (
+                    <Row as="li" key={point} gap="8" vertical="center">
+                      <Icon name="check" size="xs" onBackground="brand-weak" />
+                      <Text variant="body-default-s">{point}</Text>
+                    </Row>
+                  ))}
+                </Column>
+                <Row gap="8" wrap paddingTop="8">
+                  <Button href={track.cta.href} size="m" arrowIcon data-border="rounded">
+                    {track.cta.label}
+                  </Button>
+                  {track.secondaryCta && (
+                    <Button href={track.secondaryCta.href} size="m" variant="secondary" data-border="rounded">
+                      {track.secondaryCta.label}
+                    </Button>
+                  )}
+                </Row>
+              </Column>
+            </Column>
+          ))}
+        </Grid>
+      </Column>
+
       {/* Why BitCompass */}
       <Column as="section" aria-labelledby="why-title" fillWidth gap="40" horizontal="center">
         <SectionHeading
           id="why-title"
           eyebrow="Why BitCompass"
-          title="Remote US jobs, without the guesswork"
-          description="We handle the hard parts of landing a job with a US company from abroad, so you can focus on doing great work."
+          title="Remote work, without the guesswork"
+          description="We handle the hard parts — finding the right roles and projects, preparing you and supporting you after you start."
         />
         <Grid columns="3" m={{ columns: 2 }} s={{ columns: 1 }} gap="16" fillWidth>
           {features.map((feature) => (
@@ -180,7 +239,7 @@ export default function Home() {
             id="how-title"
             align="start"
             eyebrow="How it works"
-            title="From application to offer in four steps"
+            title="From application to work in four steps"
             description="A simple, transparent process with a real person guiding you at every stage."
           />
           <Column as="ol" gap="20" margin="0" padding="0" style={{ listStyle: "none" }}>
@@ -217,8 +276,8 @@ export default function Home() {
         <SectionHeading
           id="roles-title"
           eyebrow="Open roles"
-          title="Remote developer jobs at US companies"
-          description="Full-time, long-term roles with US product teams. Work from your home country and get paid in US dollars."
+          title="Open remote roles"
+          description="Full-time developer roles with US companies, and flexible AI training work for US-based experts."
         />
         <Column fillWidth gap="16">
           {openJobs.map((job) => (
@@ -227,7 +286,7 @@ export default function Home() {
         </Column>
         <Column fillWidth gap="16" horizontal="center" align="center">
           <Text variant="label-default-m" onBackground="neutral-weak">
-            Roles we place
+            Roles we recruit for
           </Text>
           <Row gap="8" wrap horizontal="center">
             {roles.map((role) =>
@@ -283,15 +342,26 @@ export default function Home() {
             id="faq-title"
             align="start"
             eyebrow="FAQ"
-            title="Questions from IT talent"
-            description="Everything you need to know about working remotely for a US company through BitCompass."
+            title="Questions from talent"
+            description="Everything you need to know about remote developer roles and AI training work with BitCompass."
           />
           <Button href="/contact" variant="secondary" size="m" prefixIcon="chat" data-border="rounded">
             Ask us anything
           </Button>
         </Column>
-        <Column flex={3} fillWidth>
-          <FaqList items={faqs} />
+        <Column flex={3} fillWidth gap="32">
+          <Column gap="16">
+            <Heading as="h3" variant="heading-strong-l">
+              Remote developer jobs
+            </Heading>
+            <FaqList items={faqs} />
+          </Column>
+          <Column gap="16">
+            <Heading as="h3" variant="heading-strong-l">
+              AI training (US experts)
+            </Heading>
+            <FaqList items={aiFaqs} />
+          </Column>
         </Column>
       </Row>
 
@@ -302,7 +372,7 @@ export default function Home() {
             id="blog-title"
             align="start"
             eyebrow="Career guides"
-            title="Learn how to land a US remote job"
+            title="Guides for remote developers & AI trainers"
           />
           <Button href="/blog" variant="tertiary" size="m" suffixIcon="arrowRight">
             All guides

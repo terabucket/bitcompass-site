@@ -16,6 +16,9 @@ import {
 } from "@once-ui-system/core";
 import {
   type ApplicationFields,
+  type ApplicationOptions,
+  DEGREE_OPTIONS,
+  EXPERTISE_OPTIONS,
   type FieldErrors,
   LIMITS,
   RESUME_ACCEPT,
@@ -33,15 +36,69 @@ const emptyFields: ApplicationFields = {
   country: "",
   profileUrl: "",
   message: "",
+  expertise: "",
+  degree: "",
 };
 
 const formatSize = (bytes: number) =>
   bytes < 1024 * 1024 ? `${Math.round(bytes / 1024)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 
-export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: string }) {
+type SelectFieldProps = {
+  id: string;
+  label: string;
+  value: string;
+  options: readonly string[];
+  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  error?: string;
+  required?: boolean;
+};
+
+/** Native select styled like Once UI inputs (avoids client-only IDs that break hydration). */
+function SelectField({ id, label, value, options, onChange, error, required }: SelectFieldProps) {
+  return (
+    <Column gap="4" fillWidth>
+      <div className={styles.selectField} data-error={error ? true : undefined}>
+        <label htmlFor={id} className={styles.selectLabel}>
+          {label}
+        </label>
+        <select
+          id={id}
+          name={id.replace("apply-", "")}
+          value={value}
+          onChange={onChange}
+          required={required}
+          aria-invalid={!!error}
+          className={styles.select}
+        >
+          <option value="">Select…</option>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
+      {error && (
+        <Text variant="body-default-s" onBackground="danger-weak" role="alert" paddingX="16">
+          {error}
+        </Text>
+      )}
+    </Column>
+  );
+}
+
+type ApplyFormProps = {
+  jobSlug: string;
+  jobTitle: string;
+  /** Extra questions for this job (country, expertise, US citizenship) */
+  options?: ApplicationOptions;
+};
+
+export function ApplyForm({ jobSlug, jobTitle, options = {} }: ApplyFormProps) {
   const [fields, setFields] = useState<ApplicationFields>(emptyFields);
   const [resume, setResume] = useState<File | null>(null);
   const [consent, setConsent] = useState(false);
+  const [usCitizen, setUsCitizen] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
@@ -51,7 +108,7 @@ export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: st
 
   const update =
     (key: keyof ApplicationFields) =>
-    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       setFields((prev) => ({ ...prev, [key]: event.target.value }));
       if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
     };
@@ -70,9 +127,11 @@ export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: st
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const nextErrors: FieldErrors = { ...validateFields(fields) };
+    const nextErrors: FieldErrors = { ...validateFields(fields, options) };
     const resumeError = validateResume(resume);
     if (resumeError) nextErrors.resume = resumeError;
+    if (options.requireUsCitizen && !usCitizen)
+      nextErrors.usCitizen = "This role is open to US citizens only.";
     if (!consent) nextErrors.consent = "Please accept the privacy policy.";
 
     setErrors(nextErrors);
@@ -89,6 +148,7 @@ export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: st
     for (const [key, value] of Object.entries(fields)) body.append(key, value.trim());
     body.append("resume", resume as File);
     body.append("consent", "yes");
+    if (options.requireUsCitizen) body.append("usCitizen", usCitizen ? "yes" : "no");
     body.append("website", honeypot.current?.value ?? "");
 
     setStatus("submitting");
@@ -113,6 +173,7 @@ export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: st
       document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "start" });
       setFields(emptyFields);
       setConsent(false);
+      setUsCitizen(false);
       clearFile();
     } catch {
       setStatus("error");
@@ -156,6 +217,25 @@ export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: st
   }
 
   const submitting = status === "submitting";
+
+  const profileUrlInput = (
+    <Input
+      id="apply-profileUrl"
+      name="profileUrl"
+      type="url"
+      label={
+        options.askExpertise
+          ? "LinkedIn or professional profile URL"
+          : "LinkedIn, GitHub or portfolio URL"
+      }
+      autoComplete="url"
+      value={fields.profileUrl}
+      onChange={update("profileUrl")}
+      maxLength={LIMITS.profileUrl}
+      error={!!errors.profileUrl}
+      errorMessage={errors.profileUrl}
+    />
+  );
 
   return (
     <form
@@ -208,7 +288,7 @@ export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: st
             id="apply-phone"
             name="phone"
             type="tel"
-            label="Phone number (with country code) *"
+            label={options.askCountry ? "Phone number (with country code) *" : "Phone number *"}
             autoComplete="tel"
             value={fields.phone}
             onChange={update("phone")}
@@ -217,31 +297,44 @@ export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: st
             error={!!errors.phone}
             errorMessage={errors.phone}
           />
-          <Input
-            id="apply-country"
-            name="country"
-            label="Country of residence"
-            autoComplete="country-name"
-            value={fields.country}
-            onChange={update("country")}
-            maxLength={LIMITS.country}
-            error={!!errors.country}
-            errorMessage={errors.country}
-          />
+          {options.askCountry && (
+            <Input
+              id="apply-country"
+              name="country"
+              label="Country of residence"
+              autoComplete="country-name"
+              value={fields.country}
+              onChange={update("country")}
+              maxLength={LIMITS.country}
+              error={!!errors.country}
+              errorMessage={errors.country}
+            />
+          )}
+          {options.askExpertise && (
+            <>
+              <SelectField
+                id="apply-expertise"
+                label="Main field of expertise *"
+                value={fields.expertise}
+                options={EXPERTISE_OPTIONS}
+                onChange={update("expertise")}
+                error={errors.expertise}
+                required
+              />
+              <SelectField
+                id="apply-degree"
+                label="Highest degree"
+                value={fields.degree}
+                options={DEGREE_OPTIONS}
+                onChange={update("degree")}
+                error={errors.degree}
+              />
+              {profileUrlInput}
+            </>
+          )}
         </Grid>
 
-        <Input
-          id="apply-profileUrl"
-          name="profileUrl"
-          type="url"
-          label="LinkedIn, GitHub or portfolio URL"
-          autoComplete="url"
-          value={fields.profileUrl}
-          onChange={update("profileUrl")}
-          maxLength={LIMITS.profileUrl}
-          error={!!errors.profileUrl}
-          errorMessage={errors.profileUrl}
-        />
+        {!options.askExpertise && profileUrlInput}
 
         {/* Resume upload */}
         <Column gap="8" fillWidth>
@@ -318,24 +411,52 @@ export function ApplyForm({ jobSlug, jobTitle }: { jobSlug: string; jobTitle: st
           errorMessage={errors.message}
         />
 
+        {options.requireUsCitizen && (
+          <Column gap="8">
+            <label htmlFor="apply-usCitizen" className={styles.consent}>
+              <input
+                id="apply-usCitizen"
+                name="usCitizen"
+                type="checkbox"
+                checked={usCitizen}
+                onChange={(e) => {
+                  setUsCitizen(e.target.checked);
+                  setErrors((prev) => ({ ...prev, usCitizen: undefined }));
+                }}
+                aria-invalid={!!errors.usCitizen}
+              />
+              <Text variant="body-default-s">
+                I confirm I am a US citizen currently living in the United States, and I can verify
+                this during onboarding. *
+              </Text>
+            </label>
+            {errors.usCitizen && (
+              <Text variant="body-default-s" onBackground="danger-weak" role="alert">
+                {errors.usCitizen}
+              </Text>
+            )}
+          </Column>
+        )}
+
         <Column gap="8">
           <label htmlFor="apply-consent" className={styles.consent}>
-          <input
-            id="apply-consent"
-            name="consent"
-            type="checkbox"
-            checked={consent}
-            onChange={(e) => {
-              setConsent(e.target.checked);
-              setErrors((prev) => ({ ...prev, consent: undefined }));
-            }}
-            aria-invalid={!!errors.consent}
-          />
-          <Text variant="body-default-s">
-            I agree that BitCompass may store my details and share my profile with potential
-            employers, as described in the <SmartLink href="/privacy">privacy policy</SmartLink>. *
-          </Text>
-        </label>
+            <input
+              id="apply-consent"
+              name="consent"
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => {
+                setConsent(e.target.checked);
+                setErrors((prev) => ({ ...prev, consent: undefined }));
+              }}
+              aria-invalid={!!errors.consent}
+            />
+            <Text variant="body-default-s">
+              I agree that BitCompass may store my details and share my profile with potential
+              employers and project partners, as described in the{" "}
+              <SmartLink href="/privacy">privacy policy</SmartLink>. *
+            </Text>
+          </label>
           {errors.consent && (
             <Text variant="body-default-s" onBackground="danger-weak" role="alert">
               {errors.consent}

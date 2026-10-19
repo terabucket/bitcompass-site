@@ -19,7 +19,7 @@ export function JobCard({ job, priority = false }: { job: Job; priority?: boolea
       <Column flex={2} minWidth={16} s={{ minWidth: 0 }} fillWidth>
         <Media
           src={job.image}
-          alt={`${job.title} — remote job`}
+          alt={job.imageAlt}
           aspectRatio="4 / 3"
           radius="m"
           sizes="(max-width: 768px) 100vw, 360px"
@@ -31,9 +31,11 @@ export function JobCard({ job, priority = false }: { job: Job; priority?: boolea
           <Tag variant="brand" size="m" prefixIcon="sparkles">
             {job.open ? "Hiring now" : "Closed"}
           </Tag>
-          <Tag variant="neutral" size="m" prefixIcon="globe">
-            100% Remote
-          </Tag>
+          {job.tags.slice(0, 2).map((tag) => (
+            <Tag key={tag.label} variant="neutral" size="m" prefixIcon={tag.icon}>
+              {tag.label}
+            </Tag>
+          ))}
         </Row>
         <Heading as="h3" variant="heading-strong-xl">
           {job.title}
@@ -44,7 +46,11 @@ export function JobCard({ job, priority = false }: { job: Job; priority?: boolea
         <Column gap="8">
           <Row gap="8" vertical="center">
             <Icon name="briefcase" size="xs" onBackground="brand-weak" />
-            <Text variant="body-default-s">{job.seniority}</Text>
+            <Text variant="body-default-s">{job.employmentLabel}</Text>
+          </Row>
+          <Row gap="8" vertical="center">
+            <Icon name="location" size="xs" onBackground="brand-weak" />
+            <Text variant="body-default-s">{job.location}</Text>
           </Row>
           <Row gap="8" vertical="center">
             <Icon name="clock" size="xs" onBackground="brand-weak" />

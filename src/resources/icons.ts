@@ -31,7 +31,27 @@ import {
   HiOutlineLockClosed,
 } from "react-icons/hi2";
 
-import { PiHouseDuotone, PiBookBookmarkDuotone, PiCompassDuotone } from "react-icons/pi";
+import {
+  PiHouseDuotone,
+  PiBookBookmarkDuotone,
+  PiCompassDuotone,
+  PiScalesDuotone,
+  PiStethoscopeDuotone,
+  PiAtomDuotone,
+  PiFlaskDuotone,
+  PiDnaDuotone,
+  PiCalculatorDuotone,
+  PiChartLineUpDuotone,
+  PiCodeDuotone,
+  PiCpuDuotone,
+  PiPenNibDuotone,
+  PiBriefcaseDuotone,
+  PiLightbulbDuotone,
+  PiBrainDuotone,
+  PiFlagDuotone,
+  PiGraduationCapDuotone,
+  PiIdentificationCardDuotone,
+} from "react-icons/pi";
 
 import {
   FaGithub,
@@ -88,6 +108,23 @@ export const iconLibrary: Record<string, IconType> = {
   whatsapp: FaWhatsapp,
   reddit: FaReddit,
   telegram: FaTelegram,
+  // AI training: fields of expertise and badges
+  brain: PiBrainDuotone,
+  law: PiScalesDuotone,
+  medicine: PiStethoscopeDuotone,
+  physics: PiAtomDuotone,
+  chemistry: PiFlaskDuotone,
+  biology: PiDnaDuotone,
+  math: PiCalculatorDuotone,
+  finance: PiChartLineUpDuotone,
+  software: PiCodeDuotone,
+  dataScience: PiCpuDuotone,
+  writing: PiPenNibDuotone,
+  business: PiBriefcaseDuotone,
+  idea: PiLightbulbDuotone,
+  flag: PiFlagDuotone,
+  graduation: PiGraduationCapDuotone,
+  idCard: PiIdentificationCardDuotone,
 };
 
 export type IconLibrary = typeof iconLibrary;

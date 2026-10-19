@@ -31,7 +31,7 @@ export const Footer = () => {
           </Column>
 
           <Column gap="12" as="nav" aria-label="Careers">
-            <Text as="h2" variant="label-strong-m" data-exclude-nav>For IT talent</Text>
+            <Text as="h2" variant="label-strong-m" data-exclude-nav>For talent</Text>
             <SmartLink href="/jobs">Open remote jobs</SmartLink>
             {jobs
               .filter((job) => job.open)
@@ -40,6 +40,7 @@ export const Footer = () => {
                   {job.title}
                 </SmartLink>
               ))}
+            <SmartLink href="/ai-training">AI training (US experts)</SmartLink>
             <SmartLink href="/#how-it-works">How it works</SmartLink>
             <SmartLink href="/#faq">FAQ</SmartLink>
           </Column>

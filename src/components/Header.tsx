@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button, Line, Row, ToggleButton } from "@once-ui-system/core";
 
-import { display, jobs, navigation } from "@/resources";
+import { display, navigation } from "@/resources";
 import { BrandLogo } from "./BrandLogo";
 import { ThemeToggle } from "./ThemeToggle";
 import styles from "./Header.module.scss";
@@ -14,7 +14,6 @@ const isActive = (pathname: string, href: string) =>
 
 export const Header = () => {
   const pathname = usePathname() ?? "";
-  const openJob = jobs.find((job) => job.open);
 
   return (
     <Row
@@ -76,11 +75,9 @@ export const Header = () => {
         </Row>
 
         <Row horizontal="end" s={{ hide: true }} className={styles.cta}>
-          {openJob && (
-            <Button href={`/jobs/${openJob.slug}#apply`} size="m" arrowIcon data-border="rounded">
-              Apply now
-            </Button>
-          )}
+          <Button href="/jobs" size="m" arrowIcon data-border="rounded">
+            Apply now
+          </Button>
         </Row>
       </Row>
     </Row>

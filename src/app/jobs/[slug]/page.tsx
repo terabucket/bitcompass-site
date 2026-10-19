@@ -15,7 +15,7 @@ import {
 } from "@once-ui-system/core";
 import { FaqList, JsonLd, ScrollToHash } from "@/components";
 import { ApplyForm } from "@/components/jobs/ApplyForm";
-import { faqs, jobs, site } from "@/resources";
+import { aiFaqs, faqs, jobs, site } from "@/resources";
 import { breadcrumbSchema, buildMetadata, jobPostingSchema } from "@/utils/seo";
 import type { Job } from "@/types";
 
@@ -36,14 +36,10 @@ export async function generateMetadata({ params }: Params) {
   const job = await findJob(params);
   if (!job) return {};
   return buildMetadata({
-    title: `Remote ${job.title} Job for US Companies`,
-    description: `${job.summary.slice(0, 150)}`,
+    title: job.seoTitle,
+    description: job.summary.length > 160 ? `${job.summary.slice(0, 157)}…` : job.summary,
     path: `/jobs/${job.slug}`,
-    keywords: [
-      `remote ${job.title.toLowerCase()} jobs`,
-      `${job.title.toLowerCase()} remote US`,
-      ...job.skills.map((s) => `remote ${s} jobs`),
-    ],
+    keywords: job.keywords,
   });
 }
 
@@ -67,7 +63,7 @@ function Section({ title, items }: { title: string; items: string[] }) {
 function Summary({ job }: { job: Job }) {
   const items = [
     { icon: "globe", label: "Location", value: job.location },
-    { icon: "briefcase", label: "Type", value: job.employmentType === "CONTRACTOR" ? "Contract" : "Full-time" },
+    { icon: "briefcase", label: "Type", value: job.employmentLabel },
     { icon: "academic", label: "Seniority", value: job.seniority },
     { icon: "clock", label: "Schedule", value: job.timezone },
     {
@@ -75,7 +71,7 @@ function Summary({ job }: { job: Job }) {
       label: "Compensation",
       value: job.salary
         ? `$${job.salary.min.toLocaleString()} – $${job.salary.max.toLocaleString()} USD / ${job.salary.unit.toLowerCase()}`
-        : "Competitive, paid in USD",
+        : job.compensation,
     },
   ];
   return (
@@ -134,12 +130,11 @@ export default async function JobPage({ params }: Params) {
           <Tag variant="brand" size="l" prefixIcon="sparkles">
             {job.open ? "Hiring now" : "Position closed"}
           </Tag>
-          <Tag variant="neutral" size="l" prefixIcon="globe">
-            100% Remote
-          </Tag>
-          <Tag variant="neutral" size="l" prefixIcon="dollar">
-            Paid in USD
-          </Tag>
+          {job.tags.map((tag) => (
+            <Tag key={tag.label} variant="neutral" size="l" prefixIcon={tag.icon}>
+              {tag.label}
+            </Tag>
+          ))}
         </Row>
         <Heading as="h1" variant="display-strong-m" wrap="balance">
           Remote {job.title}
@@ -147,6 +142,13 @@ export default async function JobPage({ params }: Params) {
         <Text variant="body-default-xl" onBackground="neutral-weak" wrap="balance">
           {job.summary}
         </Text>
+        {job.track === "ai" && (
+          <Row>
+            <SmartLink href="/ai-training" suffixIcon="arrowRight">
+              Learn how AI training works
+            </SmartLink>
+          </Row>
+        )}
       </Column>
 
       <Row fillWidth gap="48" vertical="start" m={{ direction: "column" }}>
@@ -154,7 +156,7 @@ export default async function JobPage({ params }: Params) {
         <Column as="article" flex={2} gap="40" fillWidth>
           <Media
             src={job.image}
-            alt={`${job.title} working remotely on a laptop`}
+            alt={job.imageAlt}
             aspectRatio="16 / 9"
             radius="l"
             border="neutral-alpha-weak"
@@ -173,7 +175,7 @@ export default async function JobPage({ params }: Params) {
           </Column>
           <Column gap="12">
             <Heading as="h2" variant="heading-strong-l">
-              Tech stack
+              {job.skillsLabel}
             </Heading>
             <Row gap="8" wrap>
               {job.skills.map((skill) => (
@@ -207,8 +209,9 @@ export default async function JobPage({ params }: Params) {
             Apply for the {job.title} role
           </Heading>
           <Text variant="body-default-l" onBackground="neutral-weak">
-            Share your basic details and resume. No cover letter needed — our recruiting team reviews
-            every application and replies to matching candidates within a few business days.
+            {job.track === "ai"
+              ? "Tell us your field and upload your resume. No AI experience needed — if you're talented at something, we want to hear from you. Matching candidates hear back within a few business days."
+              : "Share your basic details and resume. No cover letter needed — our recruiting team reviews every application and replies to matching candidates within a few business days."}
           </Text>
           {site.contact.email && (
             <Text variant="body-default-s" onBackground="neutral-weak">
@@ -222,7 +225,7 @@ export default async function JobPage({ params }: Params) {
         </Column>
         <Column flex={2} fillWidth padding="32" radius="xl" border="neutral-alpha-medium" background="surface" s={{ padding: "20" }}>
           {job.open ? (
-            <ApplyForm jobSlug={job.slug} jobTitle={job.title} />
+            <ApplyForm jobSlug={job.slug} jobTitle={job.title} options={job.application} />
           ) : (
             <Text variant="body-default-m" onBackground="neutral-weak">
               This position is no longer accepting applications. See our{" "}
@@ -236,7 +239,7 @@ export default async function JobPage({ params }: Params) {
         <Heading as="h2" id="job-faq-title" variant="heading-strong-xl">
           Frequently asked questions
         </Heading>
-        <FaqList items={faqs.slice(0, 5)} />
+        <FaqList items={job.track === "ai" ? aiFaqs : faqs.slice(1, 6)} />
       </Column>
       <ScrollToHash />
     </Column>

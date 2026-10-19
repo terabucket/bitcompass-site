@@ -1,17 +1,20 @@
 import { Background, Button, Column, Heading, Row, Text } from "@once-ui-system/core";
-import { jobs } from "@/resources";
+
+type CtaLink = { label: string; href: string };
 
 type CtaBannerProps = {
   title?: string;
   description?: string;
+  primary?: CtaLink;
+  secondary?: CtaLink;
 };
 
 export function CtaBanner({
-  title = "Ready to work with a US company — from home?",
+  title = "Ready for your next remote opportunity?",
   description = "Send your resume today. It takes two minutes, and our team reviews every application personally.",
+  primary = { label: "View open roles", href: "/jobs" },
+  secondary = { label: "AI training for US experts", href: "/ai-training" },
 }: CtaBannerProps) {
-  const job = jobs.find((j) => j.open);
-
   return (
     <Column
       as="section"
@@ -54,13 +57,11 @@ export function CtaBanner({
         {description}
       </Text>
       <Row gap="12" wrap horizontal="center" style={{ position: "relative" }}>
-        {job && (
-          <Button href={`/jobs/${job.slug}#apply`} size="l" arrowIcon data-border="rounded">
-            Apply now
-          </Button>
-        )}
-        <Button href="/jobs" size="l" variant="secondary" data-border="rounded">
-          View open roles
+        <Button href={primary.href} size="l" arrowIcon data-border="rounded">
+          {primary.label}
+        </Button>
+        <Button href={secondary.href} size="l" variant="secondary" data-border="rounded">
+          {secondary.label}
         </Button>
       </Row>
     </Column>

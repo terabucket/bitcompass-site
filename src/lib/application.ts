@@ -15,9 +15,46 @@ export type ApplicationFields = {
   country: string;
   profileUrl: string;
   message: string;
+  expertise: string;
+  degree: string;
 };
 
-export type FieldErrors = Partial<Record<keyof ApplicationFields | "resume" | "consent", string>>;
+export type FieldErrors = Partial<
+  Record<keyof ApplicationFields | "resume" | "consent" | "usCitizen", string>
+>;
+
+/** Extra questions enabled per job (see `application` in content.ts) */
+export type ApplicationOptions = {
+  askCountry?: boolean;
+  askExpertise?: boolean;
+  requireUsCitizen?: boolean;
+};
+
+export const EXPERTISE_OPTIONS = [
+  "Law",
+  "Medicine & healthcare",
+  "Physics",
+  "Chemistry",
+  "Biology & life sciences",
+  "Mathematics & statistics",
+  "Finance & accounting",
+  "Software engineering",
+  "Data science & machine learning",
+  "Writing, languages & humanities",
+  "Business & consulting",
+  "Other",
+] as const;
+
+export const DEGREE_OPTIONS = [
+  "High school / GED",
+  "Associate degree",
+  "Bachelor's degree",
+  "Master's degree",
+  "PhD",
+  "JD",
+  "MD / DO",
+  "Other professional degree",
+] as const;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 // Digits plus common separators; 7–15 digits per E.164
@@ -32,7 +69,10 @@ export const LIMITS = {
   message: 2000,
 };
 
-export function validateFields(fields: ApplicationFields): FieldErrors {
+export function validateFields(
+  fields: ApplicationFields,
+  options: ApplicationOptions = {},
+): FieldErrors {
   const errors: FieldErrors = {};
 
   if (fields.fullName.trim().length < 2) errors.fullName = "Please enter your full name.";
@@ -59,6 +99,13 @@ export function validateFields(fields: ApplicationFields): FieldErrors {
 
   if (fields.message.length > LIMITS.message)
     errors.message = `Please keep your message under ${LIMITS.message} characters.`;
+
+  if (options.askExpertise) {
+    if (!(EXPERTISE_OPTIONS as readonly string[]).includes(fields.expertise))
+      errors.expertise = "Please choose your main field of expertise.";
+    if (fields.degree && !(DEGREE_OPTIONS as readonly string[]).includes(fields.degree))
+      errors.degree = "Please choose a degree from the list.";
+  }
 
   return errors;
 }

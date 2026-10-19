@@ -35,7 +35,7 @@ export default function JobsPage() {
       <Column fillWidth horizontal="center">
         <SectionHeading
           as="h1"
-          eyebrow="Careers for global IT talent"
+          eyebrow="Remote tech & AI careers"
           title={jobsPage.headline}
           description={jobsPage.intro}
         />

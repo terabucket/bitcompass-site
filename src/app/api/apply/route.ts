@@ -103,9 +103,12 @@ export async function POST(request: Request) {
     country: oneLine(String(form.get("country") ?? "")),
     profileUrl: oneLine(String(form.get("profileUrl") ?? "")),
     message: String(form.get("message") ?? "").trim(),
+    expertise: oneLine(String(form.get("expertise") ?? "")),
+    degree: oneLine(String(form.get("degree") ?? "")),
   };
 
-  const fieldErrors: Record<string, string> = { ...validateFields(fields) };
+  const options = job.application;
+  const fieldErrors: Record<string, string> = { ...validateFields(fields, options) };
 
   const resume = form.get("resume");
   const resumeFile = resume instanceof File ? resume : null;
@@ -113,6 +116,8 @@ export async function POST(request: Request) {
   if (resumeError) fieldErrors.resume = resumeError;
 
   if (form.get("consent") !== "yes") fieldErrors.consent = "Please accept the privacy policy.";
+  if (options.requireUsCitizen && form.get("usCitizen") !== "yes")
+    fieldErrors.usCitizen = "This role is open to US citizens only.";
 
   if (Object.keys(fieldErrors).length > 0 || !resumeFile) {
     return fail(400, "Please fix the highlighted fields.", fieldErrors);
@@ -151,7 +156,16 @@ export async function POST(request: Request) {
     ["Full name", fields.fullName],
     ["Email", fields.email],
     ["Phone", fields.phone],
-    ["Country", fields.country || "—"],
+    ...(options.askCountry ? [["Country", fields.country || "—"] as [string, string]] : []),
+    ...(options.askExpertise
+      ? [
+          ["Field of expertise", fields.expertise] as [string, string],
+          ["Highest degree", fields.degree || "—"] as [string, string],
+        ]
+      : []),
+    ...(options.requireUsCitizen
+      ? [["US citizen (self-declared)", "Yes — verify during onboarding"] as [string, string]]
+      : []),
     ["LinkedIn / Portfolio", fields.profileUrl || "—"],
     ["Submitted", submittedAt],
   ];
@@ -187,7 +201,9 @@ export async function POST(request: Request) {
       from,
       to: recipients,
       replyTo: { name: fields.fullName, address: fields.email },
-      subject: `[${site.name}] ${job.title} application — ${fields.fullName}`,
+      subject: `[${site.name}] ${job.title} application — ${fields.fullName}${
+        options.askExpertise ? ` (${fields.expertise})` : ""
+      }`,
       text,
       html,
       attachments: [

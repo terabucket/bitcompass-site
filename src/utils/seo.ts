@@ -195,8 +195,8 @@ export function jobPostingSchema(job: Job) {
     qualifications: job.requirements.join(" "),
     responsibilities: job.responsibilities.join(" "),
     jobBenefits: job.benefits.join(" "),
-    industry: "Information Technology",
-    occupationalCategory: "15-1254.00 Web Developers",
+    industry: job.industry,
+    ...(job.occupationalCategory ? { occupationalCategory: job.occupationalCategory } : {}),
     url: absoluteUrl(`/jobs/${job.slug}`),
     image: absoluteUrl(job.image),
     ...(job.salary

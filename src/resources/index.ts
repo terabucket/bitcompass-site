@@ -3,9 +3,11 @@ export { site, absoluteUrl, phoneHref, socialLinks } from "./site";
 export {
   company,
   navigation,
+  tracks,
   home,
   about,
   jobsPage,
+  aiTraining,
   contact,
   blog,
   privacy,
@@ -14,7 +16,13 @@ export {
   roles,
   values,
   lookingFor,
+  aiFields,
+  aiTasks,
+  aiSteps,
+  aiPlatforms,
+  aiRequirements,
   faqs,
+  aiFaqs,
   jobs,
 } from "./content";
 

@@ -7,7 +7,8 @@ export const metadata = buildMetadata(contact);
 
 export default function ContactPage() {
   const { email, phone, whatsapp, address, hours } = site.contact;
-  const openJob = jobs.find((job) => job.open);
+  const devJob = jobs.find((job) => job.open && job.track === "global");
+  const aiJob = jobs.find((job) => job.open && job.track === "ai");
 
   const channels = [
     email && { icon: "email", label: "Email", value: email, href: `mailto:${email}` },
@@ -96,19 +97,34 @@ export default function ContactPage() {
         </Column>
       </Row>
 
-      <Grid columns="2" s={{ columns: 1 }} gap="16" fillWidth>
+      <Grid columns="3" m={{ columns: 1 }} gap="16" fillWidth>
         <Column gap="12" padding="32" radius="l" border="neutral-alpha-weak" background="surface">
           <Icon name="code" size="l" onBackground="brand-weak" />
           <Heading as="h2" variant="heading-strong-l">
-            Looking for a remote US job?
+            Developer outside the US?
           </Heading>
           <Text variant="body-default-m" onBackground="neutral-weak">
             The fastest way to reach us is to apply directly. Your resume goes straight to our
             recruiting team.
           </Text>
           <Row>
-            <Button href={openJob ? `/jobs/${openJob.slug}#apply` : "/jobs"} arrowIcon data-border="rounded">
+            <Button href={devJob ? `/jobs/${devJob.slug}#apply` : "/jobs"} arrowIcon data-border="rounded">
               Apply now
+            </Button>
+          </Row>
+        </Column>
+        <Column gap="12" padding="32" radius="l" border="neutral-alpha-weak" background="surface">
+          <Icon name="brain" size="l" onBackground="brand-weak" />
+          <Heading as="h2" variant="heading-strong-l">
+            US expert? Train AI.
+          </Heading>
+          <Text variant="body-default-m" onBackground="neutral-weak">
+            Lawyers, doctors, scientists, analysts and engineers: get matched with flexible, paid AI
+            training projects.
+          </Text>
+          <Row>
+            <Button href={aiJob ? `/jobs/${aiJob.slug}#apply` : "/ai-training"} arrowIcon data-border="rounded">
+              Apply as an AI trainer
             </Button>
           </Row>
         </Column>
